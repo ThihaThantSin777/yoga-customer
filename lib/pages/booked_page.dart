@@ -88,7 +88,7 @@ class BookedPage extends StatelessWidget {
                                 const Icon(Icons.sports, size: 16, color: Colors.blue),
                                 const SizedBox(width: 8),
                                 Text(
-                                  cls.typeOfClass,
+                                  cls.typeOfClass.replaceAll("_", " "),
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ],

@@ -13,18 +13,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String? _selectedDayOfWeek;
+
+  final List<String> _daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   @override
   Widget build(BuildContext context) {
     final yogaProvider = Provider.of<YogaProvider>(context);
 
-    final filteredClasses = _searchQuery.isEmpty
-        ? yogaProvider.classes
-        : yogaProvider.classes.where((yogaClass) {
-            return yogaClass.typeOfClass.toLowerCase().contains(_searchQuery.toLowerCase()) || // Search by typeOfClass
-                yogaClass.dayOfWeek.toLowerCase().contains(_searchQuery.toLowerCase()) || // Search by dayOfWeek
-                yogaClass.time.toLowerCase().contains(_searchQuery.toLowerCase()); // Search by time
-          }).toList();
+    final filteredClasses = yogaProvider.classes.where((yogaClass) {
+      final matchesSearchQuery = yogaClass.typeOfClass.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          yogaClass.time.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesDayOfWeek = _selectedDayOfWeek == null || yogaClass.dayOfWeek.toLowerCase() == _selectedDayOfWeek?.toLowerCase();
+
+      return matchesSearchQuery && matchesDayOfWeek;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -32,12 +35,13 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
+          // Search by Class Type
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search by Class Type',
+                hintText: 'Search by Class Name',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.grey[200],
@@ -53,6 +57,45 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
+
+          const SizedBox(
+            height: 10,
+          ),
+
+          // Dropdown for Day of the Week
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Filter by Day of the Week',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              value: _selectedDayOfWeek,
+              items: [
+                const DropdownMenuItem(
+                  value: null,
+                  child: Text('All Days'),
+                ),
+                ..._daysOfWeek.map(
+                  (day) => DropdownMenuItem(
+                    value: day,
+                    child: Text(day),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedDayOfWeek = value;
+                });
+              },
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          // Display Filtered Classes
           Expanded(
             child: filteredClasses.isEmpty
                 ? Center(
@@ -67,10 +110,13 @@ class _HomePageState extends State<HomePage> {
                       final yogaClass = filteredClasses[index];
                       return InkWell(
                         onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
                               builder: (_) => CourseDetailsPage(
-                                    course: yogaClass,
-                                  )));
+                                course: yogaClass,
+                              ),
+                            ),
+                          );
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -88,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        yogaClass.typeOfClass,
+                                        yogaClass.typeOfClass.replaceAll("_", " "),
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
