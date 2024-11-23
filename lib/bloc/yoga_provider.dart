@@ -12,10 +12,7 @@ class YogaProvider with ChangeNotifier {
   List<YogaCourseVO> get cart => _cart;
 
   YogaProvider() {
-    fetchClasses().then((value) => print("Value: $_classes")).catchError((error, stack) {
-      print("Error: $error");
-      print("Stack: $stack");
-    });
+    fetchClasses();
   }
 
   Future<void> fetchClasses() async {

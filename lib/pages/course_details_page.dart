@@ -117,10 +117,12 @@ class CourseDetailsPage extends StatelessWidget {
 
   // Helper Widget: Info Chip
   Widget _buildInfoChip(IconData icon, String label) {
-    return Chip(
-      avatar: Icon(icon, size: 20),
-      label: Text(label),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    return Flexible(
+      child: Chip(
+        avatar: Icon(icon, size: 20),
+        label: Text(label),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      ),
     );
   }
 
